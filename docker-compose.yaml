@@ -8,17 +8,34 @@ services:
       context: .
       dockerfile: Dockerfile
     networks:
-      - app
-  cache:
+      - varnish-net
+      - nginx-net
+      - hammer-net
+  varnish-cache:
     image: varnish:7.1
     ports: 
       - "8080:80"
     networks:
-      - app
+      - varnish-net
+      - hammer-net
     volumes:
       - type: bind
-        source: ./varnish/default.vcl
+        source: ./cache-conf/varnish-default.vcl
         target: /etc/varnish/default.vcl
         read_only: true
+  nginx-cache:
+    image: nginx:1.23
+    ports: 
+      - "8081:80"
+    networks:
+      - nginx-net
+      - hammer-net
+    volumes:
+      - type: bind
+        source: ./cache-conf/nginx.conf
+        target: /etc/nginx/nginx.conf
+        read_only: true
 networks:
-  app:
+  varnish-net:
+  nginx-net:
+  hammer-net:
